@@ -38,13 +38,12 @@ jobs:
             distribution: 'temurin'
             
         - run: mkdir staging
-        - run: cd hello
-        - run: mvn -B package --file pom.xml -DskipTests
-        - run: cp target/*.jar ../staging
+        - run: cd hello && mvn -B package --file pom.xml -DskipTests
+        - run: cp hello/target/*.jar staging
         - uses: actions/upload-artifact@v3
           with:
             name: Package
-            path: ../staging
+            path: staging
 
 #  sftp-tools-runner:
 #    runs-on: ubuntu-latest
