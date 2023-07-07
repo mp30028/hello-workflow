@@ -40,7 +40,37 @@ jobs:
       with:
         name: Package
         path: staging
+        
+  sftp-package-to-remote:
+#    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+#    needs: [build-do_test-package]
 
+    steps:
+      # Checkout the repository this workflow belongs to using a ready made global action called checkout
+      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
+    - name: Checkout this repository
+      uses: actions/checkout@v3
+
+    - name: Make staging directory
+      run: mkdir staging
+
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+          name: Package
+          path: staging
+#          path: ${{ env.staging_folder }}
+
+      #  Check out and run sftp-to-remote action
+    - uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
+      with:
+          remote_username: ${{ secrets.REMOTE_USERNAME  }}
+          remote_host: ${{ secrets.REMOTE_SERVER  }}
+          remote_port: ${{ secrets.REMOTE_PORT  }}
+          remote_ssh_key: ${{ secrets.REMOTE_SSH_KEY  }}
+          local_filepath: staging
+          remote_filepath: ${{ vars.REMOTE_FILEPATH  }}
 
 #  publish-hello:
 #      runs-on: ubuntu-latest
