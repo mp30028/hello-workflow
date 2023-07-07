@@ -146,6 +146,10 @@ jobs:
           name: Package
           path: staging/hello-app
 
+    - name: Copy docker setup to staging
+      run: cp -r docker-setup/* staging/hello-app/
+
+
     - name: sftp package to remote
       uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
       with:
