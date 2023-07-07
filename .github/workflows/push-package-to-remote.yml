@@ -1,0 +1,122 @@
+#################################################################################################################
+##                          Prep needed before running this workflow
+##################################################################################################################
+##
+## This workflow downloads the package built and uploaded to GitHub Package by the `build-do_test-package` workflow
+## The downloaded package is then pushed to a remote host via sftp. To do that this workflow requires sftp 
+## credentials. So these need to created and setup on the remote host then copied and saved securely in GitHub secrets
+##
+## 1. Creating unix user account on remote host for use by the workflow
+##    a) ssh into remote host with a privileged login e.g. root
+##    b) Before creating the user check it is not alread created
+##       `awk -F':' '{ print $1}' /etc/passwd | grep ghwfuser`
+##    c) If the user already exists and you want to start afresh delete the user
+##       `userdel ghwfuser`
+##    d) Create the user with a default profile
+##        `useradd -s /bin/bash -m -c "Functional account for use by github workflows" ghwfuser`
+##           Note:
+##           -s /bin/bash: sets the default shell
+##           -m : creates home directory for the user
+##           -c : adds an informative comment
+##    e) Set the password for the new user
+##        `passwd ghwfuser`
+##    f) Logout and try logging back with the newly created credentials
+##
+##
+## 2. Creating ssh keys for use by the workflow
+##    a) On your local machine (if on windows, start up a wsl linux shell) start up *nix terminal
+##    b) Generate keys by running
+##        `ssh-keygen`
+##         The process will pause and prompt the following.
+##           >>Generating public/private rsa key pair.
+##           >>Enter file in which to save the key (/home/some-user/.ssh/id_rsa): /path/to/keys/dir/private-key-file
+##           >>Provide the requested info
+##         The process will pause again and prompt for a passphrase. In this case just press enter at both prompts
+##           >>Enter passphrase (empty for no passphrase):
+##           >>Enter same passphrase again:
+##         Finally the process should complete with something like the following
+##           >>Your identification has been saved in /path/to/keys/dir/private-key-file
+#            >>Your public key has been saved in /path/to/keys/dir/public-key-file
+##           >>The key fingerprint is:
+##           >>SHA256:i/m2GzZho4N9Jgw5toMxFGiBE3LvoSkgYBW1bb6+zx4 somone@localmachine
+##           >>The key's randomart image is:
+##           >>+---[RSA 3072]----+
+##           >>|===oo.           |
+##           >>|Bo o  o          |
+##           >>|+.. o. o         |
+##           >>|o. + oo          |
+##           >>|. = *  .S        |
+##           >>| . = B =.+       |
+##           >>|  . + O.BE       |
+##           >>|     ..Boo.      |
+##           >>|       +B*       |
+##           >>+----[SHA256]-----+
+##    c) Ensure the private key is kept securely. Ideally it should be deleted once copied and tested on GitHub-Secrets
+##
+##
+## 3. Copy the public key to the remote host using a utility called ssh-copy-id
+##     a) `ssh-copy-id -i /path/to/keys/dir/public-key-file ghwfuser@remote_host`
+##        This should come up with the following output and pause for you to login
+##           >>
+##           >>/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/path/to/keys/dir/public-key-file"
+##           >>/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+##           >>/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+##           >>ghwfuser@5.75.139.33's password:
+##           >>
+##           >>Number of key(s) added: 1
+##           >>
+##           >>Now try logging into the machine, with:   "ssh 'ghwfuser@remote_host'"
+##           >>and check to make sure that only the key(s) you wanted were added.
+##
+##
+## 4. Login using the keys to test everything works
+##     a) `ssh -i /path/to/keys/dir/private-key-file ghwfuser@5.75.139.33`
+##            If everything is fine you should be able to login without issues.
+##
+##
+## 5. Setup GitHub-Secrets with the following parameters.
+##    (Note: For REMOTE_SSH_KEY and REMOTE_USERNAME use the credentials created and tested above)
+##     REMOTE_FILEPATH
+##     REMOTE_PORT
+##     REMOTE_SERVER
+##     REMOTE_SSH_KEY
+##     REMOTE_USERNAME
+
+name: build-test-publish
+
+on:
+# Trigger workflow manually
+ workflow_dispatch: 
+
+jobs:
+
+  sftp-package-to-remote:
+#    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+#    needs: [build-do_test-package]
+
+    steps:
+      # Checkout the repository this workflow belongs to using a ready made global action called checkout
+      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
+    - name: Checkout this repository
+      uses: actions/checkout@v3
+
+    - name: Make staging directory
+      run: mkdir staging
+
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+          name: Package
+          path: staging
+#          path: ${{ env.staging_folder }}
+
+      #  Check out the sftp-to-remote action in the wf-temp repository
+    - uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
+      with:
+          remote_username: ${{ secrets.REMOTE_USERNAME  }}
+          remote_host: ${{ secrets.REMOTE_SERVER  }}
+          remote_port: ${{ secrets.REMOTE_PORT  }}
+          remote_ssh_key: ${{ secrets.REMOTE_SSH_KEY  }}
+          local_filepath: staging
+          remote_filepath: ${{ vars.REMOTE_FILEPATH  }}
