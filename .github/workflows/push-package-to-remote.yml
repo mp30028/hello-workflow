@@ -96,10 +96,10 @@ jobs:
 #    needs: [build-do_test-package]
 
     steps:
-#      # Checkout the repository this workflow belongs to using a ready made global action called checkout
-#      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
-#    - name: Checkout this repository
-#      uses: actions/checkout@v3
+      # Checkout the repository this workflow belongs to using a ready made global action called checkout
+      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
+    - name: Checkout this repository
+      uses: actions/checkout@v3
 
     - name: Make staging directory
       run: mkdir staging
