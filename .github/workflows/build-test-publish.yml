@@ -1,4 +1,4 @@
-name: publish-hello-project
+name: build-test-publish
 
 on:
 # Trigger workflow manually
@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build-and-test-hello-project:
+  build-test-publish-hello-project:
     runs-on: ubuntu-latest
     steps:
     
