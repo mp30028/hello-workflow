@@ -96,10 +96,10 @@ jobs:
 #    needs: [build-do_test-package]
 
     steps:
-      # Checkout the repository this workflow belongs to using a ready made global action called checkout
-      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
-    - name: Checkout this repository
-      uses: actions/checkout@v3
+#      # Checkout the repository this workflow belongs to using a ready made global action called checkout
+#      # The repository name is in an env variable called $GITHUB_WORKSPACE which this action uses
+#    - name: Checkout this repository
+#      uses: actions/checkout@v3
 
     - name: Make staging directory
       run: mkdir staging
@@ -111,7 +111,7 @@ jobs:
           path: staging
 #          path: ${{ env.staging_folder }}
 
-      #  Check out the sftp-to-remote action in the wf-temp repository
+      #  Check out and run sftp-to-remote action
     - uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
       with:
           remote_username: ${{ secrets.REMOTE_USERNAME  }}
