@@ -1,4 +1,4 @@
-name: build-test-publish
+name: build-test-package
 
 on:
 # Trigger workflow manually
@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build-test-publish-hello-project:
+  build-test-package-hello-project:
     runs-on: ubuntu-latest
     steps:
     
@@ -35,7 +35,7 @@ jobs:
     - name: Copy the tested and built jar to staging  
       run: cp hello/target/*.jar staging
       
-    - name: Upload the jar to GitHub packages
+    - name: Package and upload the jar to GitHub packages
       uses: actions/upload-artifact@v3
       with:
         name: Package
