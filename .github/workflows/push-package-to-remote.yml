@@ -82,7 +82,7 @@
 ##     REMOTE_SSH_KEY
 ##     REMOTE_USERNAME
 
-name: build-test-publish
+name: push-package-to-remote
 
 on:
 # Trigger workflow manually
