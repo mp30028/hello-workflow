@@ -1,4 +1,4 @@
-name: build-test-package
+name: build-do_test-package
 
 on:
 # Trigger workflow manually
@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build-test-package-hello-project:
+  build-do_test-and-package-hello-project:
     runs-on: ubuntu-latest
     steps:
     
