@@ -30,16 +30,17 @@ jobs:
       run: cd hello && mvn -B package --file pom.xml
 
     - name: Make staging directory
-      run: mkdir staging
+      #run: mkdir staging
+      run: mkdir -p staging/hello-app
       
     - name: Copy the tested and built jar to staging  
-      run: cp hello/target/*.jar staging
+      run: cp hello/target/*.jar staging/hello-ap
       
     - name: Package and upload the jar to GitHub packages
       uses: actions/upload-artifact@v3
       with:
         name: Package
-        path: staging
+        path: staging/hello-app
 
 #################################################################################################################
 ##                          Prep needed before running the sftp-package-to-remote job
@@ -147,7 +148,7 @@ jobs:
           path: staging/hello-app
 
     - name: Copy docker setup to staging
-      run: cp -r docker-setup/* staging/hello-app/
+      run: cp -r docker-setup/hello-app/* staging/hello-app
 
 
     - name: sftp package to remote
