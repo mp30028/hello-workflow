@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+
+  hello-app:
+    container_name: hello-app
+    image: eclipse-temurin:17
+    command: java -jar /hello-app/hello-app.jar    
+    stdin_open: false
+    tty: false
+    env_file: .env    
+    ports:
+      - ${HELLO_APP_PORT:-8282}:${HELLO_APP_PORT:-8282}
+    volumes:
+      - type: bind
+        source: ${HELLO_APP_JAR:-../hello/target/hello-0.0.1-SNAPSHOT.jar}
+        target: /hello-app/hello-app.jar
+        read_only: true
+    networks:
+      - hello-net
+
+
+networks:
+  hello-net:
