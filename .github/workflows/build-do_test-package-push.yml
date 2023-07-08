@@ -152,7 +152,7 @@ jobs:
     - name: Make staging directory
       run: mkdir -p staging/hello-app
 
-    - name: Download the package
+    - name: Download the package to staging
       uses: actions/download-artifact@v3
       with:
           name: Package
@@ -162,7 +162,7 @@ jobs:
       run: cp -r docker-setup/hello-app/* staging/hello-app
 
 
-    - name: sftp package to remote
+    - name: sftp staged artifacts to remote
       uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
       with:
           remote_username: ${{ secrets.REMOTE_USERNAME  }}
