@@ -1,2 +1,2 @@
 # hello-workflow
-A temporary repo to play around with workflows
+A repo with a simple spring boot app and a full workflow to deploy and start it on a remote host
