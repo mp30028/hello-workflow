@@ -105,7 +105,7 @@ jobs:
 ##           >>/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/path/to/keys/dir/public-key-file"
 ##           >>/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 ##           >>/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
-##           >>ghwfuser@5.75.139.33's password:
+##           >>ghwfuser@remote_host's password:
 ##           >>
 ##           >>Number of key(s) added: 1
 ##           >>
@@ -114,7 +114,7 @@ jobs:
 ##
 ##
 ## 4. Login using the keys to test everything works
-##     a) `ssh -i /path/to/keys/dir/private-key-file ghwfuser@5.75.139.33`
+##     a) `ssh -i /path/to/keys/dir/private-key-file ghwfuser@remote_host`
 ##            If everything is fine you should be able to login without issues.
 ##
 ##
@@ -125,6 +125,17 @@ jobs:
 ##     REMOTE_SERVER
 ##     REMOTE_SSH_KEY
 ##     REMOTE_USERNAME
+##
+##
+## 6. Set unix permissions for the newly created ghwfuser
+##    The newly created user will need read, write and execute permissions on remote host locations where the
+##    workflow is setup to push artifacts to
+##
+##
+## 7. Add ghwfuser to the docker group to be able start docker compose projects
+##      `sudo usermod -a -G docker ghwfuser`
+##    
+ 
 
         
   sftp-package-to-remote:
