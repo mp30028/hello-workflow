@@ -171,3 +171,17 @@ jobs:
           remote_ssh_key: ${{ secrets.REMOTE_SSH_KEY  }}
           local_filepath: staging/hello-app
           remote_filepath: ${{ vars.REMOTE_FILEPATH  }}
+
+  orchestrate-start-of-hello-app-on-remote:
+    runs-on: ubuntu-latest
+    needs: [push-hello-app-orchestration-artifacts-to-remote]
+    
+    steps:      
+      - name: Execute remote command to start or restart containers
+        uses: mp30028/hello-workflow/.github/actions/execute-remote-command@main
+        with:
+          remote_username: ${{ secrets.REMOTE_USERNAME  }}
+          remote_host: ${{ secrets.REMOTE_SERVER  }}
+          remote_port: ${{ secrets.REMOTE_PORT  }}
+          remote_ssh_key: ${{ secrets.REMOTE_SSH_KEY  }}
+          remote_cmd: cd ${{ vars.REMOTE_FILEPATH  }}/hello-app; docker compose down; docker compose up -d;
