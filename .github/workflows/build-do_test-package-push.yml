@@ -34,7 +34,7 @@ jobs:
       run: mkdir -p staging/hello-app
       
     - name: Copy the tested and built jar to staging  
-      run: cp hello/target/*.jar staging/hello-ap
+      run: cp hello/target/*.jar staging/hello-app
       
     - name: Package and upload the jar to GitHub packages
       uses: actions/upload-artifact@v3
