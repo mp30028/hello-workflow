@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build-do_test-and-package-hello-project:
+  build-do_test-then-package-hello-app:
     runs-on: ubuntu-latest
     steps:
     
@@ -105,7 +105,7 @@ jobs:
 ##           >>/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/path/to/keys/dir/public-key-file"
 ##           >>/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 ##           >>/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
-##           >>ghwfuser@5.75.139.33's password:
+##           >>ghwfuser@remote_host's password:
 ##           >>
 ##           >>Number of key(s) added: 1
 ##           >>
@@ -114,7 +114,7 @@ jobs:
 ##
 ##
 ## 4. Login using the keys to test everything works
-##     a) `ssh -i /path/to/keys/dir/private-key-file ghwfuser@5.75.139.33`
+##     a) `ssh -i /path/to/keys/dir/private-key-file ghwfuser@remote_host`
 ##            If everything is fine you should be able to login without issues.
 ##
 ##
@@ -125,12 +125,23 @@ jobs:
 ##     REMOTE_SERVER
 ##     REMOTE_SSH_KEY
 ##     REMOTE_USERNAME
+##
+##
+## 6. Set unix permissions for the newly created ghwfuser
+##    The newly created user will need read, write and execute permissions on remote host locations where the
+##    workflow is setup to push artifacts to
+##
+##
+## 7. Add ghwfuser to the docker group to be able start docker compose projects
+##      `sudo usermod -a -G docker ghwfuser`
+##    
+ 
 
         
-  sftp-package-to-remote:
+  push-hello-app-orchestration-artifacts-to-remote:
 #    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    needs: [build-do_test-and-package-hello-project]
+    needs: [build-do_test-then-package-hello-app]
 
     steps:
       # Checkout the repository this workflow belongs to using a ready made global action called checkout
@@ -141,7 +152,7 @@ jobs:
     - name: Make staging directory
       run: mkdir -p staging/hello-app
 
-    - name: Download the package
+    - name: Download the package to staging
       uses: actions/download-artifact@v3
       with:
           name: Package
@@ -151,7 +162,7 @@ jobs:
       run: cp -r docker-setup/hello-app/* staging/hello-app
 
 
-    - name: sftp package to remote
+    - name: sftp staged artifacts to remote
       uses: mp30028/wf-temp/.github/actions/sftp-to-remote@main
       with:
           remote_username: ${{ secrets.REMOTE_USERNAME  }}
