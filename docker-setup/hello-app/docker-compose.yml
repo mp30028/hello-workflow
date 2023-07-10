@@ -9,7 +9,8 @@ services:
     tty: false
     env_file: .env    
     ports:
-      - ${HELLO_APP_PORT:-8282}:${HELLO_APP_PORT:-8282}
+      - ${HELLO_APP_HTTP_PORT:-8282}:${HELLO_APP_HTTP_PORT:-8282}
+      - ${HELLO_APP_HTTPS_PORT:-8443}:${HELLO_APP_HTTPS_PORT:-8443}
     volumes:
       - type: bind
         source: ${HELLO_APP_JAR:-../hello/target/hello-0.0.1-SNAPSHOT.jar}
