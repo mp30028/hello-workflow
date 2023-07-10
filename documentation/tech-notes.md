@@ -209,3 +209,36 @@ Certbot has set up a scheduled task to automatically renew this certificate in t
 
 ---
 
+<br/>
+<br/>
+<br/>
+
+
+## Create test certificate for development and testing purposes on localhost
+Use openssl on linux to run the multiline command shown below. It should generate two files localhost.crt and localhost.key
+
+```
+openssl \
+req -x509 \
+-out localhost.crt \
+-keyout localhost.key \
+-newkey rsa:2048 \
+-nodes \
+-sha256 \
+-subj '/CN=localhost' \
+-extensions EXT -config <( \
+printf "\
+[dn]\n\
+CN=localhost\n\
+[req]\n\
+distinguished_name=dn\n\
+[EXT]\n\
+subjectAltName=DNS:localhost\n\
+keyUsage=digitalSignature\n\
+extendedKeyUsage=serverAuth\
+")
+```
+
+### Convert the test certificate to pkcs12 format
+
+openssl pkcs12 -export -out localhost.p12 -inkey localhost.key -in localhost.crt
