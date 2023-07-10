@@ -207,6 +207,17 @@ These files will be updated when the certificate renews.
 Certbot has set up a scheduled task to automatically renew this certificate in the background.
 ```
 
+#### Convert the certificate to pkcs12 format
+
+`openssl pkcs12 -export -out /etc/letsencrypt/live/mp30028.com/certs.p12 -in /etc/letsencrypt/live/mp30028.com/fullchain.pem -inkey /etc/letsencrypt/live/mp30028.com/privkey.pem`
+
+
+#### Give appropriate permissions to certificates to container
+
+#### Check the file is available and accessible
+`openssl pkcs12 -nokeys -info -in /etc/letsencrypt/live/mp30028.com/certs.p12 -passin pass:<p12's password>`
+
+
 ---
 
 <br/>

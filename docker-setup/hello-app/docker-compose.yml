@@ -7,7 +7,9 @@ services:
     command: java -jar /hello-app/hello-app.jar    
     stdin_open: false
     tty: false
-    env_file: .env    
+    env_file: .env
+    environment:
+      HELLO_APP_KEY_STORE: /hello-app/certs.p12
     ports:
       - ${HELLO_APP_HTTP_PORT:-8282}:${HELLO_APP_HTTP_PORT:-8282}
       - ${HELLO_APP_HTTPS_PORT:-8443}:${HELLO_APP_HTTPS_PORT:-8443}
@@ -16,6 +18,11 @@ services:
         source: ${HELLO_APP_JAR:-../hello/target/hello-0.0.1-SNAPSHOT.jar}
         target: /hello-app/hello-app.jar
         read_only: true
+      - type: bind
+        source: ${HELLO_APP_CERTS_FILE:-./localhost.p12}
+        target: /hello-app/certs.p12
+        read_only: true
+        
     networks:
       - hello-net
 
