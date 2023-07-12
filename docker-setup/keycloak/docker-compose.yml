@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:      
+  keycloak-db:
+    container_name: keycloak-db
+    image: mysql:8.0.33
+    command: --default-authentication-plugin=mysql_native_password
+    stdin_open: false
+    tty: false
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-tha7*R007*Pa55word}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-keycloak}
+      MYSQL_USER: ${MYSQL_USER:-keycloak-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-KeycloakAppP*55w0rd}
+      MYSQL_TCP_PORT: ${MYSQL_TCP_PORT:-30999}                  
+    ports:
+       - ${MYSQL_TCP_PORT:-30999}:${MYSQL_TCP_PORT:-30999}
+    volumes:
+      - type: bind      
+        source: ${KC_DB_DATAFILES_DIR:-~/tmp/kc-data-files}
+        target: /var/lib/mysql
+        read_only: false      
+
+    healthcheck:
+        test: "mysql $${MYSQL_DATABASE} -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --port=$${MYSQL_TCP_PORT} -e 'SELECT 1;'"
+        timeout: 20s
+        retries: 10
+    networks:
+    - swot-net
+
+  keycloak-app:
+    container_name: keycloak-app
+    image: quay.io/keycloak/keycloak:21.1.0
+    environment:
+      KC_HTTPS_CERTIFICATE_FILE: /keycloak-certs/certfile
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /keycloak-certs/keyfile
+      KC_DB: ${KC_DB:-mysql}
+      KC_DB_URL_HOST: ${KC_DB_URL_HOST:-keycloak-db}
+      KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE:-keycloak}
+      KC_DB_USERNAME: ${KC_DB_USERNAME:-keycloak-app}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-KeycloakAppP*55w0rd}
+      KC_HOSTNAME: ${KC_HOSTNAME:-localhost}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-I^mAdm1n!strator}
+      KC_DB_URL_PORT: ${KC_DB_URL_PORT:-30999}
+    networks:
+    - swot-net
+    volumes:
+      - ${CERTIFICATE_FILE:-./localhost.crt}:/keycloak-certs/certfile
+      - ${CERTIFICATE_KEY_FILE:-./localhost.key}:/keycloak-certs/keyfile
+    ports:
+      - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
+    command: start
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+        
+networks:
+  swot-net:
+  
