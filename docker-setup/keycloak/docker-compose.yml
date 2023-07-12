@@ -25,8 +25,6 @@ services:
         test: "mysql $${MYSQL_DATABASE} -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --port=$${MYSQL_TCP_PORT} -e 'SELECT 1;'"
         timeout: 20s
         retries: 10
-    networks:
-    - swot-net
 
   keycloak-app:
     container_name: keycloak-app
@@ -43,8 +41,6 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-I^mAdm1n!strator}
       KC_DB_URL_PORT: ${KC_DB_URL_PORT:-30999}
-    networks:
-    - swot-net
     volumes:
       - ${CERTIFICATE_FILE:-./localhost.crt}:/keycloak-certs/certfile
       - ${CERTIFICATE_KEY_FILE:-./localhost.key}:/keycloak-certs/keyfile
@@ -55,6 +51,4 @@ services:
       keycloak-db:
         condition: service_healthy
         
-networks:
-  swot-net:
   
