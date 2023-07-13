@@ -1,6 +1,6 @@
 version: "3.8"
 
-services:      
+services:
   keycloak-db:
     container_name: keycloak-db
     image: mysql:8.0.33
@@ -12,26 +12,30 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-keycloak}
       MYSQL_USER: ${MYSQL_USER:-keycloak-app}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-KeycloakAppP*55w0rd}
-      MYSQL_TCP_PORT: ${MYSQL_TCP_PORT:-30999}                  
+      MYSQL_TCP_PORT: ${MYSQL_TCP_PORT:-30999}
     ports:
        - ${MYSQL_TCP_PORT:-30999}:${MYSQL_TCP_PORT:-30999}
     volumes:
-      - type: bind      
+      - type: bind
         source: ${KC_DB_DATAFILES_DIR:-~/tmp/kc-data-files}
         target: /var/lib/mysql
-        read_only: false      
+        read_only: false
 
     healthcheck:
         test: "mysql $${MYSQL_DATABASE} -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --port=$${MYSQL_TCP_PORT} -e 'SELECT 1;'"
         timeout: 20s
         retries: 10
+    networks:
+    - kc-net
 
   keycloak-app:
     container_name: keycloak-app
     image: quay.io/keycloak/keycloak:21.1.0
+    stdin_open: false
+    tty: false
     environment:
-      KC_HTTPS_CERTIFICATE_FILE: /keycloak-certs/certfile
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /keycloak-certs/keyfile
+      KC_HTTPS_CERTIFICATE_FILE: ${CERTIFICATE_FILE:-/keycloak-certs/localhost.crt}
+      KC_HTTPS_CERTIFICATE_KEY_FILE: ${CERTIFICATE_KEY_FILE:-/keycloak-certs/localhost.key}
       KC_DB: ${KC_DB:-mysql}
       KC_DB_URL_HOST: ${KC_DB_URL_HOST:-keycloak-db}
       KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE:-keycloak}
@@ -41,14 +45,20 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-I^mAdm1n!strator}
       KC_DB_URL_PORT: ${KC_DB_URL_PORT:-30999}
+    networks:
+      - kc-net
     volumes:
-      - ${CERTIFICATE_FILE:-./localhost.crt}:/keycloak-certs/certfile
-      - ${CERTIFICATE_KEY_FILE:-./localhost.key}:/keycloak-certs/keyfile
+      - ${HOST_CERTIFICATE_FILE:-../localhost.crt}:${CERTIFICATE_FILE:-/keycloak-certs/localhost.crt}
+      - ${HOST_CERTIFICATE_KEY_FILE:-../localhost.key}:${CERTIFICATE_KEY_FILE:-/keycloak-certs/localhost.key}
     ports:
-      - ${KC_HTTPS_PORT:-8443}:${KC_HTTPS_PORT:-8443}
-    command: start
+      - ${KC_HTTPS_PORT:-9448}:8443
+    command: --verbose start --hostname-port=${KC_HTTPS_PORT:-9448}
+#    command: --verbose start-dev
+
     depends_on:
       keycloak-db:
-        condition: service_healthy
-        
-  
+         condition: service_healthy
+
+networks:
+  kc-net:
+    name: db_kc-net
