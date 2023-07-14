@@ -29,7 +29,7 @@ public class HomeController {
 				htmlResponse.append("</h3>");
 	
 				htmlResponse.append("<h4>");
-					htmlResponse.append("Here is some other info we have on you");
+					htmlResponse.append("Other available info");
 				htmlResponse.append("</h4>");
 				
 				htmlResponse.append("<pre>");
