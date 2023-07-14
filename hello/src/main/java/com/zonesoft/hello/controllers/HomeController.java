@@ -18,7 +18,7 @@ public class HomeController {
 		if (authenticationToken.isAuthenticated()) {
 			String username = oidcUser.getPreferredUsername();
 			String fullname = oidcUser.getFullName();
-			String info = authenticationToken.toString().replace("], ", "]\n");
+			String info = authenticationToken.toString().replace("], ", "]\n\n");
 			StringBuilder htmlResponse = new StringBuilder();
 			
 				htmlResponse.append("<h3>");
@@ -27,14 +27,16 @@ public class HomeController {
 						htmlResponse.append("You have successfully logged in as ");htmlResponse.append(username);
 					htmlResponse.append("</h4>");
 				htmlResponse.append("</h3>");
-	
-				htmlResponse.append("<h4>");
-					htmlResponse.append("Other available info");
-				htmlResponse.append("</h4>");
+				htmlResponse.append("<br/><br/>");
+				htmlResponse.append("<b>");
+					htmlResponse.append("Other info available");
+				htmlResponse.append("</b>");
 				
-				htmlResponse.append("<pre>");
-					htmlResponse.append(info);
-				htmlResponse.append("</pre>");
+				htmlResponse.append("<div style=\"width:800px; overflow:auto\">");
+					htmlResponse.append("<pre style=\"white-space: pre-wrap\">");
+						htmlResponse.append(info);
+					htmlResponse.append("</pre>");
+				htmlResponse.append("<div/>");
 
 			return htmlResponse.toString();
 		} else {
